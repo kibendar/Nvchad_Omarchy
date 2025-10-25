@@ -1,1 +1,0 @@
-/home/dunkan/.config/omarchy/current/theme/neovim.lua
