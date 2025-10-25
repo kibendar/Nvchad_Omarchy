@@ -1,0 +1,25 @@
+return {
+  "stevearc/conform.nvim",
+  opts = {
+    formatters_by_ft = {
+      lua = { "stylua" },
+      css = { "prettier" },
+      yml = { "prettier" },
+      tex = { "latexindent" },
+      javascript = { "prettier" },
+      typescript = { "prettier" },
+      javascriptreact = { "prettier" },
+      typescriptreact = { "prettier" },
+      markdown = { "markdownlint" },
+      java = { "clang-format" },
+      python = { "black" },
+      c = { "clang-format" },
+      cpp = { "clang-format" },
+      xml = { "xmlformatter" },
+      bash = { "beautysh" },
+      sh = { "beautysh" },
+      rs = { "ast-grep" },
+      kt = { "ktfmt" },
+    },
+  },
+}
