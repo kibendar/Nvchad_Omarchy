@@ -1,9 +1,5 @@
 require("nvchad.mappings")
 
-local dapui = require("dapui")
-
-dapui.setup() -- Make sure DAP UI is properly set up
-
 local map = vim.keymap.set
 
 -- Diagnostics Toggle Function
@@ -262,10 +258,30 @@ map("n", "<leader>to", function()
 	require("neotest").output.open({ enter = true })
 end, { desc = "Test Output" })
 
--- Debug
+-- Debug - Session Control
 map("n", "<leader>dc", function()
 	require("dap").continue()
 end, { desc = "Debug Continue" })
+map("n", "<leader>dC", function()
+	require("dap").run_to_cursor()
+end, { desc = "Debug Run to Cursor" })
+map("n", "<leader>dp", function()
+	require("dap").pause()
+end, { desc = "Debug Pause" })
+map("n", "<leader>dq", function()
+	require("dap").terminate()
+end, { desc = "Debug Terminate" })
+map("n", "<leader>dQ", function()
+	require("dap").close()
+end, { desc = "Debug Close Session" })
+map("n", "<leader>dr", function()
+	require("dap").restart()
+end, { desc = "Debug Restart" })
+map("n", "<leader>dR", function()
+	require("dap").restart_frame()
+end, { desc = "Debug Restart Frame" })
+
+-- Debug - Stepping
 map("n", "<leader>do", function()
 	require("dap").step_over()
 end, { desc = "Debug Step Over" })
@@ -275,16 +291,86 @@ end, { desc = "Debug Step Into" })
 map("n", "<leader>du", function()
 	require("dap").step_out()
 end, { desc = "Debug Step Out" })
+map("n", "<leader>dj", function()
+	require("dap").down()
+end, { desc = "Debug Down Stack" })
+map("n", "<leader>dk", function()
+	require("dap").up()
+end, { desc = "Debug Up Stack" })
+
+-- Debug - Breakpoints
 map("n", "<leader>db", function()
 	require("dap").toggle_breakpoint()
 end, { desc = "Debug Toggle Breakpoint" })
 map("n", "<leader>dB", function()
 	require("dap").set_breakpoint(vim.fn.input("Breakpoint condition: "))
 end, { desc = "Debug Conditional Breakpoint" })
+map("n", "<leader>dL", function()
+	require("dap").set_breakpoint(nil, nil, vim.fn.input("Log point message: "))
+end, { desc = "Debug Log Point" })
+map("n", "<leader>dx", function()
+	require("dap").clear_breakpoints()
+end, { desc = "Debug Clear All Breakpoints" })
+map("n", "<leader>dl", function()
+	require("dap").list_breakpoints()
+end, { desc = "Debug List Breakpoints" })
+
+-- Debug - UI & REPL
 map("n", "<leader>dt", function()
 	require("dapui").toggle()
 end, { desc = "Debug UI Toggle" })
-map("n", "<leader>lD", function() end)
+map("n", "<leader>de", function()
+	require("dapui").eval()
+end, { desc = "Debug Eval Expression" })
+map("v", "<leader>de", function()
+	require("dapui").eval()
+end, { desc = "Debug Eval Selection" })
+map("n", "<leader>dE", function()
+	require("dapui").eval(vim.fn.input("Expression: "))
+end, { desc = "Debug Eval Input" })
+map("n", "<leader>dw", function()
+	require("dapui").float_element("watches", { enter = true })
+end, { desc = "Debug Show Watches" })
+map("n", "<leader>ds", function()
+	require("dapui").float_element("scopes", { enter = true })
+end, { desc = "Debug Show Scopes" })
+map("n", "<leader>df", function()
+	require("dapui").float_element("stacks", { enter = true })
+end, { desc = "Debug Show Stack Frames" })
+map("n", "<leader>dh", function()
+	require("dapui").float_element("breakpoints", { enter = true })
+end, { desc = "Debug Show Breakpoints" })
+map("n", "<leader>dR", function()
+	require("dap").repl.toggle()
+end, { desc = "Debug Toggle REPL" })
+
+-- Debug - Sessions & Last Run
+map("n", "<leader>dS", function()
+	require("dap").session()
+end, { desc = "Debug Show Session" })
+map("n", "<leader>d.", function()
+	require("dap").run_last()
+end, { desc = "Debug Run Last" })
+
+-- Debug - Hover
+map("n", "<leader>dv", function()
+	require("dap.ui.widgets").hover()
+end, { desc = "Debug Hover Variables" })
+map("v", "<leader>dv", function()
+	require("dap.ui.widgets").hover()
+end, { desc = "Debug Hover Variables" })
+
+-- Debug - Scopes Sidebar
+map("n", "<leader>da", function()
+	local widgets = require("dap.ui.widgets")
+	widgets.sidebar(widgets.scopes).open()
+end, { desc = "Debug Open Scopes Sidebar" })
+
+-- Debug - Frames Sidebar
+map("n", "<leader>dF", function()
+	local widgets = require("dap.ui.widgets")
+	widgets.sidebar(widgets.frames).open()
+end, { desc = "Debug Open Frames Sidebar" })
 
 -- Git
 map("n", "<leader>gl", ":Flog<CR>", { desc = "Git Log" })

@@ -1,23 +1,48 @@
 require("nvchad.configs.lspconfig").defaults()
 
 local servers = {
+	-- Web Development
 	"html",
 	"cssls",
+	"ts_ls",
+	"emmet_ls",
+	"tailwindcss",
+	"eslint",
+
+	-- System Programming
+	"clangd",
+	"rust-analyzer",
+
+	-- Scripting
 	"lua_ls",
 	"pyright",
+	"bash-language-server",
+
+	-- JVM Languages
 	-- "jdtls",
+	"kotlin_language_server",
+
+	-- Data/Config Languages
+	"jsonls",
+	"yamlls",
+	"taplo", -- TOML
+	"lemminx", -- XML
+
+	-- Go
+	"gopls",
+
+	-- Documentation
+	"marksman",
 	"texlab",
-	"clangd",
-	"ts_ls",
-	"ast-grep",
+	"tinymist",
+
+	-- DevOps
 	"docker-compose-language-server",
 	"dockerfile-language-server",
-	"bash-language-server",
-	"kotlin_language_server", -- Added Kotlin LSP
-	"rust-analyzer",
-	"lemminx",
-	"marksman",
-	"tinymist",
+	"terraformls",
+
+	-- Other
+	"ast-grep",
 }
 vim.lsp.enable(servers)
 vim.lsp.config("*", {
@@ -28,6 +53,57 @@ vim.lsp.config("*", {
 		textDocument = {
 			semanticTokens = {
 				multilineTokenSupport = true,
+			},
+			completion = {
+				completionItem = {
+					snippetSupport = true,
+					resolveSupport = {
+						properties = {
+							"documentation",
+							"detail",
+							"additionalTextEdits",
+						},
+					},
+					insertReplaceSupport = true,
+					labelDetailsSupport = true,
+					deprecatedSupport = true,
+					commitCharactersSupport = true,
+					documentationFormat = { "markdown", "plaintext" },
+					preselectSupport = true,
+					tagSupport = {
+						valueSet = { 1 },
+					},
+				},
+			},
+			codeAction = {
+				dynamicRegistration = true,
+				codeActionLiteralSupport = {
+					codeActionKind = {
+						valueSet = {
+							"",
+							"quickfix",
+							"refactor",
+							"refactor.extract",
+							"refactor.inline",
+							"refactor.rewrite",
+							"source",
+							"source.organizeImports",
+						},
+					},
+				},
+			},
+			hover = {
+				dynamicRegistration = true,
+				contentFormat = { "markdown", "plaintext" },
+			},
+			signatureHelp = {
+				dynamicRegistration = true,
+				signatureInformation = {
+					documentationFormat = { "markdown", "plaintext" },
+					parameterInformation = {
+						labelOffsetSupport = true,
+					},
+				},
 			},
 		},
 	},
@@ -153,18 +229,67 @@ vim.lsp.config.pyright = {
 			analysis = {
 				autoSearchPaths = true,
 				useLibraryCodeForTypes = true,
-				diagnosticMode = "workspace", -- or "openFilesOnly" for better performance
+				diagnosticMode = "openFilesOnly", -- "workspace" or "openFilesOnly"
 				typeCheckingMode = "basic", -- "off", "basic", or "strict"
+				-- Diagnostic settings
+				diagnosticSeverityOverrides = {
+					reportUnusedImport = "warning",
+					reportUnusedClass = "warning",
+					reportUnusedFunction = "warning",
+					reportUnusedVariable = "warning",
+					reportDuplicateImport = "warning",
+				},
+				-- Additional analysis options
+				autoImportCompletions = true,
+				extraPaths = {},
+				stubPath = vim.fn.stdpath("data") .. "/lazy/python-type-stubs",
+				-- Indexing
+				indexing = true,
+				logLevel = "Information",
 			},
 		},
 	},
 	single_file_support = true,
 }
--- JS / TS (tsserver)
-vim.lsp.config.tsserver = {
-	cmd = { "tsserver" },
-	filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
-	root_markers = { "package.json", "tsconfig.json", "jsconfig.json", ".git" },
+-- JS / TS (ts_ls)
+vim.lsp.config.ts_ls = {
+	cmd = { "typescript-language-server", "--stdio" },
+	filetypes = {
+		"javascript",
+		"javascriptreact",
+		"javascript.jsx",
+		"typescript",
+		"typescriptreact",
+		"typescript.tsx",
+	},
+	root_markers = { "tsconfig.json", "jsconfig.json", "package.json", ".git" },
+	settings = {
+		typescript = {
+			inlayHints = {
+				includeInlayParameterNameHints = "all",
+				includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+				includeInlayFunctionParameterTypeHints = true,
+				includeInlayVariableTypeHints = true,
+				includeInlayVariableTypeHintsWhenTypeMatchesName = false,
+				includeInlayPropertyDeclarationTypeHints = true,
+				includeInlayFunctionLikeReturnTypeHints = true,
+				includeInlayEnumMemberValueHints = true,
+			},
+		},
+		javascript = {
+			inlayHints = {
+				includeInlayParameterNameHints = "all",
+				includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+				includeInlayFunctionParameterTypeHints = true,
+				includeInlayVariableTypeHints = true,
+				includeInlayVariableTypeHintsWhenTypeMatchesName = false,
+				includeInlayPropertyDeclarationTypeHints = true,
+				includeInlayFunctionLikeReturnTypeHints = true,
+				includeInlayEnumMemberValueHints = true,
+			},
+		},
+	},
+	single_file_support = true,
 }
 vim.lsp.ast_grep = {
 	cmd = { "ast-grep" },
@@ -174,12 +299,39 @@ vim.lsp.ast_grep = {
 vim.lsp.config.clangd = {
 	cmd = {
 		"clangd",
-		"--clang-tidy",
 		"--background-index",
+		"--clang-tidy",
+		"--header-insertion=iwyu",
+		"--completion-style=detailed",
+		"--function-arg-placeholders",
+		"--fallback-style=llvm",
 		"--offset-encoding=utf-8",
+		"--all-scopes-completion",
+		"--cross-file-rename",
+		"--log=verbose",
+		"--pch-storage=memory",
+		"-j=8",
+		"--enable-config",
 	},
-	filetypes = { "c", "cpp" },
-	root_markers = { ".clangd", "compile_commands.json", ".git" },
+	filetypes = { "c", "cpp", "objc", "objcpp", "cuda", "proto" },
+	root_markers = {
+		".clangd",
+		".clang-tidy",
+		".clang-format",
+		"compile_commands.json",
+		"compile_flags.txt",
+		"configure.ac",
+		".git",
+	},
+	capabilities = {
+		offsetEncoding = { "utf-8" },
+	},
+	init_options = {
+		usePlaceholders = true,
+		completeUnimported = true,
+		clangdFileStatus = true,
+	},
+	single_file_support = true,
 }
 -- Lua (lua_ls)
 vim.lsp.config.lua_ls = {
@@ -510,9 +662,18 @@ vim.lsp.config["rust-analyzer"] = {
 				privateeditable = {
 					enable = false,
 				},
-				snippets = {
-					custom = {},
-				},
+				-- Custom snippets configuration removed - add specific snippets when needed
+				-- snippets = {
+				-- 	custom = {
+				-- 		["Arc::new"] = {
+				-- 			postfix = "arc",
+				-- 			body = "Arc::new(${receiver})",
+				-- 			description = "Put the expression into an Arc",
+				-- 			requires = "std::sync::Arc",
+				-- 			scope = "expr",
+				-- 		},
+				-- 	},
+				-- },
 			},
 			-- assist settings (code actions)
 			assist = {
@@ -644,6 +805,352 @@ vim.lsp.config.tinymist = {
 			completion = true, -- enable completion
 			hover = true, -- hover info
 			outline = true, -- symbols/document outline
+		},
+	},
+	single_file_support = true,
+}
+
+-- Go (gopls)
+vim.lsp.config.gopls = {
+	cmd = { "gopls" },
+	filetypes = { "go", "gomod", "gowork", "gotmpl" },
+	root_markers = { "go.work", "go.mod", ".git" },
+	settings = {
+		gopls = {
+			-- Analysis settings
+			analyses = {
+				unusedparams = true,
+				shadow = true,
+				nilness = true,
+				unusedwrite = true,
+				useany = true,
+			},
+			-- Static check analyzers
+			staticcheck = true,
+			-- Completion settings
+			completeUnimported = true,
+			usePlaceholders = true,
+			deepCompletion = true,
+			-- Matcher
+			matcher = "Fuzzy",
+			-- Symbol settings
+			symbolMatcher = "FastFuzzy",
+			symbolStyle = "Dynamic",
+			-- Hints
+			hints = {
+				assignVariableTypes = true,
+				compositeLiteralFields = true,
+				compositeLiteralTypes = true,
+				constantValues = true,
+				functionTypeParameters = true,
+				parameterNames = true,
+				rangeVariableTypes = true,
+			},
+			-- Codelens
+			codelenses = {
+				gc_details = true,
+				generate = true,
+				regenerate_cgo = true,
+				tidy = true,
+				upgrade_dependency = true,
+				vendor = true,
+			},
+			-- Semantic tokens
+			semanticTokens = true,
+			-- Diagnostics
+			diagnosticsDelay = "500ms",
+			-- Experimental features
+			experimentalPostfixCompletions = true,
+		},
+	},
+	single_file_support = true,
+}
+
+-- JSON (jsonls)
+vim.lsp.config.jsonls = {
+	cmd = { "vscode-json-language-server", "--stdio" },
+	filetypes = { "json", "jsonc" },
+	root_markers = { "package.json", ".git" },
+	settings = {
+		json = {
+			-- Schemas
+			schemas = require("schemastore").json.schemas(),
+			validate = { enable = true },
+			-- Formatting
+			format = {
+				enable = true,
+			},
+			-- Keep lines (prevents reformatting)
+			keepLines = {
+				enable = true,
+			},
+		},
+	},
+	single_file_support = true,
+	init_options = {
+		provideFormatter = true,
+	},
+}
+
+-- YAML (yamlls)
+vim.lsp.config.yamlls = {
+	cmd = { "yaml-language-server", "--stdio" },
+	filetypes = { "yaml", "yaml.docker-compose", "yml" },
+	root_markers = { ".git" },
+	settings = {
+		yaml = {
+			-- Schemas
+			schemas = require("schemastore").yaml.schemas(),
+			schemaStore = {
+				enable = true,
+				url = "https://www.schemastore.org/api/json/catalog.json",
+			},
+			-- Validation
+			validate = true,
+			-- Formatting
+			format = {
+				enable = true,
+				singleQuote = false,
+				bracketSpacing = true,
+			},
+			-- Hover
+			hover = true,
+			-- Completion
+			completion = true,
+			-- Custom tags
+			customTags = {
+				"!reference sequence",
+				"!And",
+				"!If",
+				"!Not",
+				"!Equals",
+				"!Or",
+				"!FindInMap sequence",
+				"!Base64",
+				"!Cidr",
+				"!Ref",
+				"!Sub",
+				"!GetAtt",
+				"!GetAZs",
+				"!ImportValue",
+				"!Select",
+				"!Split",
+				"!Join sequence",
+			},
+		},
+	},
+	single_file_support = true,
+}
+
+-- TOML (taplo)
+vim.lsp.config.taplo = {
+	cmd = { "taplo", "lsp", "stdio" },
+	filetypes = { "toml" },
+	root_markers = { "*.toml", ".git" },
+	settings = {
+		evenBetterToml = {
+			schema = {
+				enabled = true,
+				repositoryEnabled = true,
+				repositoryUrl = "https://taplo.tamasfe.dev/schema_index.json",
+			},
+			formatter = {
+				alignEntries = false,
+				alignComments = true,
+				arrayTrailingComma = true,
+				arrayAutoExpand = true,
+				arrayAutoCollapse = true,
+				compactArrays = true,
+				compactInlineTables = false,
+				indentTables = false,
+				indentEntries = false,
+				trailingNewline = true,
+				reorderKeys = false,
+				allowedBlankLines = 2,
+				columnWidth = 80,
+			},
+		},
+	},
+	single_file_support = true,
+}
+
+-- HTML
+vim.lsp.config.html = {
+	cmd = { "vscode-html-language-server", "--stdio" },
+	filetypes = { "html", "templ" },
+	root_markers = { "package.json", ".git" },
+	settings = {
+		html = {
+			format = {
+				enable = true,
+				wrapLineLength = 120,
+				wrapAttributes = "auto",
+			},
+			hover = {
+				documentation = true,
+				references = true,
+			},
+		},
+	},
+	single_file_support = true,
+}
+
+-- CSS
+vim.lsp.config.cssls = {
+	cmd = { "vscode-css-language-server", "--stdio" },
+	filetypes = { "css", "scss", "less" },
+	root_markers = { "package.json", ".git" },
+	settings = {
+		css = {
+			validate = true,
+			lint = {
+				unknownAtRules = "ignore",
+			},
+		},
+		scss = {
+			validate = true,
+			lint = {
+				unknownAtRules = "ignore",
+			},
+		},
+		less = {
+			validate = true,
+			lint = {
+				unknownAtRules = "ignore",
+			},
+		},
+	},
+	single_file_support = true,
+}
+
+-- Emmet
+vim.lsp.config.emmet_ls = {
+	cmd = { "emmet-ls", "--stdio" },
+	filetypes = {
+		"html",
+		"css",
+		"scss",
+		"javascript",
+		"javascriptreact",
+		"typescript",
+		"typescriptreact",
+		"vue",
+		"svelte",
+	},
+	root_markers = { "package.json", ".git" },
+	single_file_support = true,
+}
+
+-- TailwindCSS
+vim.lsp.config.tailwindcss = {
+	cmd = { "tailwindcss-language-server", "--stdio" },
+	filetypes = {
+		"html",
+		"css",
+		"scss",
+		"javascript",
+		"javascriptreact",
+		"typescript",
+		"typescriptreact",
+		"vue",
+		"svelte",
+	},
+	root_markers = { "tailwind.config.js", "tailwind.config.ts", "postcss.config.js", ".git" },
+	settings = {
+		tailwindCSS = {
+			classAttributes = { "class", "className", "classList", "ngClass" },
+			experimental = {
+				classRegex = {
+					"tw`([^`]*)",
+					'tw="([^"]*)',
+					'tw={"([^"}]*)',
+					"tw\\.\\w+`([^`]*)",
+					"tw\\(.*?\\)`([^`]*)",
+				},
+			},
+			validate = true,
+			lint = {
+				cssConflict = "warning",
+				invalidApply = "error",
+				invalidConfigPath = "error",
+				invalidScreen = "error",
+				invalidTailwindDirective = "error",
+				invalidVariant = "error",
+				recommendedVariantOrder = "warning",
+			},
+		},
+	},
+	single_file_support = true,
+}
+
+-- ESLint
+vim.lsp.config.eslint = {
+	cmd = { "vscode-eslint-language-server", "--stdio" },
+	filetypes = {
+		"javascript",
+		"javascriptreact",
+		"typescript",
+		"typescriptreact",
+		"vue",
+		"svelte",
+	},
+	root_markers = {
+		".eslintrc",
+		".eslintrc.js",
+		".eslintrc.json",
+		".eslintrc.yml",
+		"eslint.config.js",
+		"package.json",
+		".git",
+	},
+	settings = {
+		codeAction = {
+			disableRuleComment = {
+				enable = true,
+				location = "separateLine",
+			},
+			showDocumentation = {
+				enable = true,
+			},
+		},
+		codeActionOnSave = {
+			enable = false,
+			mode = "all",
+		},
+		format = true,
+		nodePath = "",
+		onIgnoredFiles = "off",
+		packageManager = "npm",
+		problems = {
+			shortenToSingleLine = false,
+		},
+		quiet = false,
+		rulesCustomizations = {},
+		run = "onType",
+		useESLintClass = false,
+		validate = "on",
+		workingDirectory = {
+			mode = "location",
+		},
+	},
+	single_file_support = true,
+}
+
+-- Terraform
+vim.lsp.config.terraformls = {
+	cmd = { "terraform-ls", "serve" },
+	filetypes = { "terraform", "tf", "terraform-vars" },
+	root_markers = { ".terraform", ".git" },
+	settings = {
+		terraform = {
+			-- Validation settings
+			validation = {
+				enableEnhancedValidation = true,
+			},
+			-- Completion settings
+			completion = {
+				enable = true,
+			},
 		},
 	},
 	single_file_support = true,

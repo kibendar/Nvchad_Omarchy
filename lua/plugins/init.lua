@@ -5,6 +5,31 @@ return {
 		opts = require("configs.conform"),
 	},
 	{
+		"kylechui/nvim-surround",
+		version = "^3.0.0", -- Use for stability; omit to use `main` branch for the latest features
+		event = "VeryLazy",
+		config = function()
+			require("nvim-surround").setup({
+				-- Configuration here, or leave empty to use defaults
+			})
+		end,
+	},
+	{
+		"kevinhwang91/nvim-ufo",
+		dependencies = {
+			"kevinhwang91/promise-async",
+		},
+		event = "VeryLazy",
+		opts = {
+			provider_selector = function()
+				return { "treesitter", "indent" }
+			end,
+		},
+		config = function()
+			require("configs.ufo")
+		end,
+	},
+	{
 		"folke/which-key.nvim",
 		event = "VeryLazy",
 	},
@@ -160,10 +185,16 @@ return {
 	-- These are some examples, uncomment them if you want to see them work!
 	{
 		"neovim/nvim-lspconfig",
+		dependencies = {
+			"b0o/schemastore.nvim", -- JSON/YAML schemas
+		},
 		config = function()
 			require("nvchad.configs.lspconfig").defaults()
 			require("configs.lspconfig")
 		end,
+	},
+	{
+		"b0o/schemastore.nvim",
 	},
 
 	-- test new blink
@@ -225,6 +256,16 @@ return {
 			require("configs.dap")
 		end,
 	},
+	{
+		"jay-babu/mason-nvim-dap.nvim",
+		dependencies = {
+			"williamboman/mason.nvim",
+			"mfussenegger/nvim-dap",
+		},
+		config = function()
+			require("configs.mason-dap")
+		end,
+	},
 	-- Maven.nvim plugin configuration
 	{
 		"eatgrass/maven.nvim",
@@ -263,15 +304,6 @@ return {
 			})
 		end,
 	},
-
-	{
-		"kylechui/nvim-surround",
-		version = "^3.0.0", -- Use for stability; omit to use `main` branch for the latest features
-		event = "VeryLazy",
-		config = function()
-			require("nvim-surround").setup({})
-		end,
-	},
 	{
 		"Wansmer/langmapper.nvim",
 		lazy = false,
@@ -295,13 +327,13 @@ return {
 		"sindrets/diffview.nvim",
 		lazy = false,
 	},
-	{
-		"ggandor/leap.nvim",
-		lazy = false,
-		config = function()
-			require("leap").add_default_mappings(true)
-		end,
-	},
+	-- {
+	-- 	"ggandor/leap.nvim",
+	-- 	lazy = false,
+	-- 	config = function()
+	-- 		require("leap").add_default_mappings(true)
+	-- 	end,
+	-- },
 	{
 		"kevinhwang91/nvim-bqf",
 		lazy = false,

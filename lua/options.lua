@@ -24,6 +24,15 @@ vim.opt.spellfile = vim.fn.stdpath("config") .. "/spell/custom.utf-8.add"
 -- Use both tree-sitter and spell for better detection
 vim.opt.spelloptions = "camel"
 
+vim.opt.foldmethod = "manual" -- or 'indent', 'syntax', 'marker'
+vim.opt.foldcolumn = "1" -- shows fold column on the left
+vim.opt.foldenable = true -- enable folding
+vim.opt.foldlevel = 99 -- start with folds open
+
+vim.opt.foldtext = [[('..(v:foldend-v:foldstart+1)..' lines)']]
+
+-- [substitute(getline(v:foldstart),'\\t',repeat('\ ',&tabstop),'g').'...'.trim(getline(v:foldend)).'
+--
 -- Set tab size to 4 spaces (change 4 to your preferred size)
 -- vim.opt.tabstop = 4 -- Number of spaces a tab counts for
 -- vim.opt.shiftwidth = 4 -- Number of spaces for each step of autoindent
